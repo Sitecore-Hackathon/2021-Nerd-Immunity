@@ -3,6 +3,7 @@ using NerdImmunity2021.Feature.Cloudflare.Services;
 using Sitecore.Data.Items;
 using Sitecore.Diagnostics;
 using Sitecore.Events;
+using Sitecore.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +36,23 @@ namespace NerdImmunity2021.Feature.Cloudflare.Pipelines
                 CloudflareService cfService = new CloudflareService();
                 if (savedCFsettings.fullyCachePageField.Checked)
                 {
-                    string CFpageRuleId = cfService.AddPageRule(savedCFsettings);
+                    var siteInfoList = Sitecore.Configuration.Factory.GetSiteInfoList();
+
+                    SiteInfo currentSiteinfo = null;
+                    var matchLength = 0;
+                    foreach (var siteInfo in siteInfoList)
+                    {
+                        if (savedItem.Paths.FullPath.StartsWith(siteInfo.RootPath, StringComparison.OrdinalIgnoreCase) && siteInfo.RootPath.Length > matchLength)
+                        {
+                            matchLength = siteInfo.RootPath.Length;
+                            currentSiteinfo = siteInfo;
+                        }
+                    }
+                    if (currentSiteinfo == null)
+                        return;
+                    string PageSiteStartPath = currentSiteinfo.RootPath + currentSiteinfo.StartItem;
+                    string RelativeUrl = Sitecore.Links.LinkManager.GetItemUrl(savedItem);
+                    string CFpageRuleId = cfService.AddPageRule(PageSiteStartPath, RelativeUrl);
                     if (string.IsNullOrEmpty(CFpageRuleId))
                     {
                         //something went wrong, cancel the save and alert the user
