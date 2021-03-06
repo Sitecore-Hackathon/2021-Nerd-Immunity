@@ -1,4 +1,6 @@
-﻿using Sitecore.Data.Items;
+﻿using Cloudflare.Models;
+using Cloudflare.Services;
+using Sitecore.Data.Items;
 using Sitecore.Diagnostics;
 using Sitecore.Events;
 using System;
@@ -17,30 +19,56 @@ namespace Cloudflare.Pipelines
                 var savedItem = Event.ExtractParameter(args, 0) as Item;
                 if (savedItem == null)
                     return;
+                //if the item being saved doesn't have presentation, it doesn't qualify for this rule
+                if (savedItem.Fields[Sitecore.FieldIDs.LayoutField] != null && !String.IsNullOrEmpty(savedItem.Fields[Sitecore.FieldIDs.LayoutField].Value))
+                    return;
+                //if the item doesn't inherit the Cloudflare Page Settings, it doesn't qualify for this rule
+                CloudflarePageSettings savedCFsettings = new CloudflarePageSettings(savedItem);
+                if (savedCFsettings == null)
+                    return;
                 var itemChanges = Event.ExtractParameter(args, 1) as ItemChanges;
-                if (itemChanges == null || !itemChanges.IsFieldModified(new Sitecore.Data.ID("{5116173A-016D-47C7-B250-D935CE4ACAF5}")))
+                if (itemChanges == null || !itemChanges.IsFieldModified(savedCFsettings.fullyCachePageFieldID))
                     return;
                 //the field for caching was update in this save so we need to check page rules in cloudflare and update item
-                Sitecore.Data.Fields.CheckboxField cacheCheckboxField = savedItem.Fields["{5116173A-016D-47C7-B250-D935CE4ACAF5}"];
-                if (cacheCheckboxField == null)
+                if (savedCFsettings.fullyCachePageField == null)
                     return;
-                if (cacheCheckboxField.Checked)
-                    return; 
-                // string CFpageRuleId = CFUtility.AddPageRule(savedItem);
-                // if successful, set the page rule ID on the item
-                // savedItem.Update
-                // if not successful - alert the user
+                CloudflareService cfService = new CloudflareService();
+                if (savedCFsettings.fullyCachePageField.Checked)
+                {
+                    string CFpageRuleId = cfService.AddPageRule(savedItem);
+                    if (string.IsNullOrEmpty(CFpageRuleId))
+                    {
+                        //something went wrong, cancel the save and alert the user
+                        cancelSaveWithPrompt(args);
+                        return;
+                    }
+                    //update savedItem with page rule id
+                    savedItem.Fields[savedCFsettings.fullyCachePageFieldID].Value = CFpageRuleId;
+                }
                 else
-                    return; 
-                // bool success = RemovePageRule(savedItem);
-                // if successful, clear the page rule ID from the item
-                // savedItem.Update
-                // if not successful, alert the user
+                {
+                    bool success = cfService.RemovePageRule(savedItem);
+                    if (!success)
+                    {
+                        //something went wrong, cancel the save and alert the user
+                        cancelSaveWithPrompt(args);
+                        return;
+                    }
+                    //clear the page rule ID from the item
+                    savedItem.Fields[savedCFsettings.fullyCachePageFieldID].Value = string.Empty;
+                }
             }
             catch (Exception ex)
             {
                 Log.Error("Error while saving item during check for Cloudflare cache clear.", ex, this);
             }
+        }
+
+        private void cancelSaveWithPrompt(EventArgs args)
+        {
+            SitecoreEventArgs evt = args as SitecoreEventArgs;
+            evt.Result.Cancel = true;
+            Sitecore.Context.ClientPage.ClientResponse.Alert("Connection to Cloudflare failed - please try again.");
         }
     }
 }
