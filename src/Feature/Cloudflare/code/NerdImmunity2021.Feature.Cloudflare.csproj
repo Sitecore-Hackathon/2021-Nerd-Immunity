@@ -309,6 +309,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\CloudflarePageSettings.cs" />
+    <Compile Include="Models\CloudflareSiteSettings.cs" />
+    <Compile Include="Pipelines\CloudflareItemPublishProcessed.cs" />
     <Compile Include="Pipelines\CloudflareItemSaving.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\CloudflareService.cs" />
