@@ -35,7 +35,7 @@ namespace NerdImmunity2021.Feature.Cloudflare.Pipelines
                 CloudflareService cfService = new CloudflareService();
                 if (savedCFsettings.fullyCachePageField.Checked)
                 {
-                    string CFpageRuleId = cfService.AddPageRule(savedItem);
+                    string CFpageRuleId = cfService.AddPageRule(savedCFsettings);
                     if (string.IsNullOrEmpty(CFpageRuleId))
                     {
                         //something went wrong, cancel the save and alert the user
@@ -47,7 +47,7 @@ namespace NerdImmunity2021.Feature.Cloudflare.Pipelines
                 }
                 else
                 {
-                    bool success = cfService.RemovePageRule(savedItem);
+                    bool success = cfService.RemovePageRule(savedCFsettings);
                     if (!success)
                     {
                         //something went wrong, cancel the save and alert the user

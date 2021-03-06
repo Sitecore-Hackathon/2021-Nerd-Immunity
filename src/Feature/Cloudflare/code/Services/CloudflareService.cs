@@ -1,4 +1,5 @@
-﻿using Sitecore.Data.Items;
+﻿using NerdImmunity2021.Feature.Cloudflare.Models;
+using Sitecore.Data.Items;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,12 +9,12 @@ namespace NerdImmunity2021.Feature.Cloudflare.Services
 {
     public class CloudflareService
     {
-        public string AddPageRule(Item pageItem)
+        public string AddPageRule(CloudflarePageSettings pageItem)
         {
             return "RULE ADDED";
         }
 
-        public bool RemovePageRule(Item pageItem)
+        public bool RemovePageRule(CloudflarePageSettings pageItem)
         {
             return true;
         }
