@@ -18,5 +18,10 @@ namespace NerdImmunity2021.Feature.Cloudflare.Services
         {
             return true;
         }
+
+        public bool ClearCache(CloudflarePageSettings pageItem)
+        {
+            return true;
+        }
     }
 }
