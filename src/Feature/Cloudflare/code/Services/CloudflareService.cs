@@ -1,5 +1,6 @@
 ﻿using NerdImmunity2021.Feature.Cloudflare.Models;
 using Sitecore.Data.Items;
+using Sitecore.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,8 +20,18 @@ namespace NerdImmunity2021.Feature.Cloudflare.Services
             return true;
         }
 
-        public bool ClearCache(CloudflarePageSettings pageItem)
+        public bool ClearCache(List<string> PagesToPurge)
         {
+            foreach (string PageToPurge in PagesToPurge)
+            {
+                string[] PageInfo = PageToPurge.Split('|');
+                if (PageInfo.Length != 2)
+                    Log.Error("Invalid info sent to Cloudflare cache purge on publish.", this);
+                else
+                {
+                    Log.Audit("Cloudflare cache purge for " + PageInfo[1] + " (for site " + PageInfo[0] + ") queued.", this);
+                }
+            }
             return true;
         }
     }
