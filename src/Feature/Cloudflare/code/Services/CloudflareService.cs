@@ -29,6 +29,10 @@ namespace NerdImmunity2021.Feature.Cloudflare.Services
                     Log.Error("Invalid info sent to Cloudflare cache purge on publish.", this);
                 else
                 {
+                    if (PageInfo[0].Equals("ALL"))
+                    {
+                        Log.Audit("Cloudflare cache purge for media item " + PageInfo[1] + " (for all sites) queued.", this);
+                    }
                     Log.Audit("Cloudflare cache purge for " + PageInfo[1] + " (for site " + PageInfo[0] + ") queued.", this);
                 }
             }

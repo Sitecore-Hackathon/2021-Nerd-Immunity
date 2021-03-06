@@ -27,6 +27,12 @@ namespace NerdImmunity2021.Feature.Cloudflare.Pipelines
                 List<string> PagesToPurge = new List<string>();
                 foreach (Item publishedItem in processedItems)
                 {
+                    //if published item is a media item, add to the queue for all sites
+                    if (publishedItem.Paths.IsMediaItem)
+                    {
+                        string RelativeUrl = Sitecore.Links.LinkManager.GetItemUrl(publishedItem);
+                        PagesToPurge.Add("ALL|" + RelativeUrl);
+                    }
                     //if the item being published doesn't have presentation, it doesn't qualify for this rule
                     if (publishedItem.Fields[Sitecore.FieldIDs.LayoutField] == null || String.IsNullOrEmpty(publishedItem.Fields[Sitecore.FieldIDs.LayoutField].Value))
                         continue;
