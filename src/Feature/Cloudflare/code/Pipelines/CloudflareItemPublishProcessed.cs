@@ -9,7 +9,7 @@ using System.Web;
 
 namespace NerdImmunity2021.Feature.Cloudflare.Pipelines
 {
-    public class CloudflareItemPublishProcessor 
+    public class CloudflareItemPublishProcessed 
     {
         public void ItemProcessed(object sender, EventArgs args)
         {
