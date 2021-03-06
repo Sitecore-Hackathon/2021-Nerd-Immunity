@@ -20,7 +20,7 @@ namespace Cloudflare.Pipelines
                 if (savedItem == null)
                     return;
                 //if the item being saved doesn't have presentation, it doesn't qualify for this rule
-                if (savedItem.Fields[Sitecore.FieldIDs.LayoutField] != null && !String.IsNullOrEmpty(savedItem.Fields[Sitecore.FieldIDs.LayoutField].Value))
+                if (savedItem.Fields[Sitecore.FieldIDs.LayoutField] == null || String.IsNullOrEmpty(savedItem.Fields[Sitecore.FieldIDs.LayoutField].Value))
                     return;
                 //if the item doesn't inherit the Cloudflare Page Settings, it doesn't qualify for this rule
                 CloudflarePageSettings savedCFsettings = new CloudflarePageSettings(savedItem);
@@ -43,7 +43,7 @@ namespace Cloudflare.Pipelines
                         return;
                     }
                     //update savedItem with page rule id
-                    savedItem.Fields[savedCFsettings.fullyCachePageFieldID].Value = CFpageRuleId;
+                    savedItem.Fields[savedCFsettings.cfPageRuleIdFieldID].Value = CFpageRuleId;
                 }
                 else
                 {
@@ -55,7 +55,7 @@ namespace Cloudflare.Pipelines
                         return;
                     }
                     //clear the page rule ID from the item
-                    savedItem.Fields[savedCFsettings.fullyCachePageFieldID].Value = string.Empty;
+                    savedItem.Fields[savedCFsettings.cfPageRuleIdFieldID].Value = string.Empty;
                 }
             }
             catch (Exception ex)

@@ -10,12 +10,12 @@ namespace Cloudflare.Services
     {
         public string AddPageRule(Item pageItem)
         {
-            return "";
+            return "RULE ADDED";
         }
 
         public bool RemovePageRule(Item pageItem)
         {
-            return false;
+            return true;
         }
     }
 }

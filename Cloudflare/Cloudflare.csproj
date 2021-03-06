@@ -232,6 +232,7 @@
     <Compile Include="Services\CloudflareService.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Config\Include\Feature\Feature.Cloudflare.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup>
