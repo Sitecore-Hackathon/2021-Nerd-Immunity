@@ -47,12 +47,33 @@ namespace NerdImmunity2021.Feature.Cloudflare.Services
             {
                 CfClient.DefaultRequestHeaders.Add("X-Auth-Key", AuthHeader);
                 CfClient.DefaultRequestHeaders.Add("X-Auth-Email", "Corey.Caplette@gmail.com");
-                //var param = new PageRuleApiModel
-                //{
-                //    url = CfCommands[i].Substring(0, CfCommands[i].IndexOf('|'))
-                //};
-                var serialContent = "{\"targets\":[{\"target\": \"url\",\"constraint\": {\"operator\": \"matches\",\"value\": \"" + TargetDomain + "/" + PagePath + "\"}}].\"actions\":[{\"id\":\"always_online\",\"value\":\"on\"}]";
-                    //JsonConvert.SerializeObject(param, SerialSettings);
+                var constraint = new ConstraintApiModel
+                {
+                     @operator="matches",
+                     value= TargetDomain + PagePath
+                };
+                var mytarget = new TargetApiModel
+                {
+                    target = "url",
+                    constraint = constraint
+                };
+                var mytargets = new TargetApiModel[1];
+                mytargets[0] = mytarget;
+                var myaction = new ActionApiModel
+                {
+                    id = "cache_level",
+                    value = "cache_everything"
+                };
+                var myactions = new ActionApiModel[1];
+                myactions[0] = myaction;
+                var param = new PageRuleApiModel
+                {
+                    targets = mytargets,
+                    actions = myactions,
+                    status = "active"
+                };
+                //var serialContent = "{\"targets\":[{\"target\": \"url\",\"constraint\": {\"operator\": \"matches\",\"value\": \"" + TargetDomain + "/" + PagePath + "\"}}].\"actions\":[{\"id\":\"always_online\",\"value\":\"on\"}]";
+                var serialContent = JsonConvert.SerializeObject(param, SerialSettings);
                 var paramContent = new StringContent(serialContent, Encoding.UTF8, JsonContentType);
                 using (var res = Task.Run(() => CfClient.PostAsync(url, paramContent)))
                 {
@@ -60,7 +81,7 @@ namespace NerdImmunity2021.Feature.Cloudflare.Services
                     //var response = JsonConvert.DeserializeObject<T>(content);
                 }
             }
-                return "RULE ADDED";
+            return "RULE ADDED";
         }
 
         public bool RemovePageRule(CloudflarePageSettings pageItem)
@@ -142,6 +163,23 @@ namespace NerdImmunity2021.Feature.Cloudflare.Services
     }
     public class PageRuleApiModel
     {
-
+        public TargetApiModel[] targets { get; set; }
+        public ActionApiModel[] actions { get; set; }
+        public string status { get; set; }
+    }
+    public class ActionApiModel
+    {
+        public string id { get; set; }
+        public string value { get; set; }
+    }
+    public class TargetApiModel
+    {
+        public string target { get; set; }
+        public ConstraintApiModel constraint { get; set; }
+    }
+    public class ConstraintApiModel
+    {
+        public string @operator { get; set; }
+        public string value { get; set; }
     }
 }

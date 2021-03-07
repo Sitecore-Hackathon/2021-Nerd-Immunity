@@ -51,6 +51,7 @@ namespace NerdImmunity2021.Feature.Cloudflare.Pipelines
                     if (currentSiteinfo == null)
                         return;
                     string PageSiteStartPath = currentSiteinfo.RootPath + currentSiteinfo.StartItem;
+                    Sitecore.Context.SetActiveSite("website");
                     string RelativeUrl = Sitecore.Links.LinkManager.GetItemUrl(savedItem);
                     string CFpageRuleId = cfService.AddPageRule(PageSiteStartPath, RelativeUrl);
                     if (string.IsNullOrEmpty(CFpageRuleId))

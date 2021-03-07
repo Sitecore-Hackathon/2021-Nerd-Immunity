@@ -30,6 +30,7 @@ namespace NerdImmunity2021.Feature.Cloudflare.Pipelines
                     //if published item is a media item, add to the queue for all sites
                     if (publishedItem.Paths.IsMediaItem)
                     {
+                        Sitecore.Context.SetActiveSite("website");
                         string RelativeUrl = Sitecore.Links.LinkManager.GetItemUrl(publishedItem);
                         PagesToPurge.Add("ALL|" + RelativeUrl);
                     }
@@ -55,6 +56,7 @@ namespace NerdImmunity2021.Feature.Cloudflare.Pipelines
                         if (currentSiteinfo != null)
                         {
                             string PageSiteStartPath = currentSiteinfo.RootPath + currentSiteinfo.StartItem;
+                            Sitecore.Context.SetActiveSite("website");
                             string RelativeUrl = Sitecore.Links.LinkManager.GetItemUrl(publishedItem);
                             PagesToPurge.Add(PageSiteStartPath + "|" + RelativeUrl);
                         }
