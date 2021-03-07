@@ -70,7 +70,6 @@ namespace NerdImmunity2021.Feature.Cloudflare.Services
                     actions = myactions,
                     status = "active"
                 };
-                //var serialContent = "{\"targets\":[{\"target\": \"url\",\"constraint\": {\"operator\": \"matches\",\"value\": \"" + TargetDomain + "/" + PagePath + "\"}}].\"actions\":[{\"id\":\"always_online\",\"value\":\"on\"}]";
                 var serialContent = JsonConvert.SerializeObject(param, SerialSettings);
                 var paramContent = new StringContent(serialContent, Encoding.UTF8, JsonContentType);
                 using (var res = Task.Run(() => CfClient.PostAsync(url, paramContent)))
@@ -84,6 +83,27 @@ namespace NerdImmunity2021.Feature.Cloudflare.Services
 
         public bool RemovePageRule(CloudflarePageSettings pageItem)
         {
+            return true;
+        }
+
+        public bool ClearSiteCache(CloudflareSiteSettings siteSettings)
+        {
+            string url = BaseApiUrl + siteSettings.CFZoneID.Value + "/purge_cache";
+            using (HttpClient CfClient = new HttpClient())
+            {
+                CfClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + siteSettings.CFToken.Value);
+                var param = new SitePurgeApiModel
+                {
+                     purge_everything = true
+                };
+                var serialContent = JsonConvert.SerializeObject(param, SerialSettings);
+                var paramContent = new StringContent(serialContent, Encoding.UTF8, JsonContentType);
+                using (var res = Task.Run(() => CfClient.PostAsync(url, paramContent)))
+                {
+                    var content = Task.Run(() => res.Result.Content.ReadAsStringAsync()).Result;
+                    //var response = JsonConvert.DeserializeObject<T>(content);
+                }
+            }
             return true;
         }
 
@@ -153,6 +173,10 @@ namespace NerdImmunity2021.Feature.Cloudflare.Services
             }
             return true;
         }
+    }
+    public class SitePurgeApiModel
+    {
+        public bool purge_everything { get; set; }
     }
     public class UrlApiModel
     {
