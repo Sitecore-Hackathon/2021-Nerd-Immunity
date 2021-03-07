@@ -13,10 +13,7 @@ using System.Web;
 namespace NerdImmunity2021.Feature.Cloudflare.Services
 {
     public class CloudflareService
-    {
-
-        private string AuthHeader => "b3152693c5b0c6a7bec3811d1486630d3f48e";
-        private string ContentTypeHeader => "application/json";
+   {
         private string BaseApiUrl => "https://api.cloudflare.com/client/v4/zones/";
         private string JsonContentType => "application/json";
         private JsonSerializerSettings SerialSettings => new JsonSerializerSettings
@@ -30,6 +27,7 @@ namespace NerdImmunity2021.Feature.Cloudflare.Services
             //get site from item
             string ZoneID = "";
             string TargetDomain = "";
+            string Token = "";
             Item CloudflareSiteSettingsParent = Sitecore.Configuration.Factory.GetDatabase("master").GetItem("/sitecore/system/Modules/Cloudflare/Settings");
             foreach (Item MySettings in CloudflareSiteSettingsParent.Children)
             {
@@ -39,14 +37,14 @@ namespace NerdImmunity2021.Feature.Cloudflare.Services
                     {
                         ZoneID = MyCloudflareSiteSetting.CFZoneID.Value;
                         TargetDomain = MyCloudflareSiteSetting.DeliveryTargetHostname.Value;
+                        Token = MyCloudflareSiteSetting.CFToken.Value;
                     }
             }
             //call Cloudflare for the given site
             string url = $"{BaseApiUrl}{ZoneID}/pagerules";
             using (HttpClient CfClient = new HttpClient())
             {
-                CfClient.DefaultRequestHeaders.Add("X-Auth-Key", AuthHeader);
-                CfClient.DefaultRequestHeaders.Add("X-Auth-Email", "Corey.Caplette@gmail.com");
+                CfClient.DefaultRequestHeaders.Add("Authorization", "Bearer "+Token);
                 var constraint = new ConstraintApiModel
                 {
                      @operator="matches",
@@ -138,8 +136,7 @@ namespace NerdImmunity2021.Feature.Cloudflare.Services
                     string url = BaseApiUrl + AllCloudflareSiteSettings[i].CFZoneID.Value + "/purge_cache";
                     using (HttpClient CfClient = new HttpClient())
                     {
-                        CfClient.DefaultRequestHeaders.Add("X-Auth-Key", AuthHeader);
-                        CfClient.DefaultRequestHeaders.Add("X-Auth-Email", "Corey.Caplette@gmail.com");
+                        CfClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + AllCloudflareSiteSettings[i].CFToken.Value);
                         var param = new UrlApiModel
                         {
                             files = CfCommands[i].Split('|')
